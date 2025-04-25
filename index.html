@@ -63,24 +63,18 @@
       }
     }
 
-    // Register and show total visit count
+    // Register visit with no-cors (no JSON response expected)
     window.onload = function() {
-      fetch("https://script.google.com/macros/s/AKfycbyWBst-FTUD_LBi1A3kA1P9vZMrB8JxNLeBJq9OMjoSUTJedMpvmzZ7g6WOLtQk8sBaXg/exec")
-        .then(response => {
-          if (!response.ok) throw new Error("Network response was not ok");
-          return response.json();
-        })
-        .then(data => {
-          if (data.visite !== undefined) {
-            document.getElementById("counter").innerText = `Totale visite: ${data.visite}`;
-          } else {
-            document.getElementById("counter").innerText = "Risposta non valida.";
-          }
-        })
-        .catch(err => {
-          console.error("Errore fetch:", err);
-          document.getElementById("counter").innerText = "Errore nel conteggio.";
-        });
+      fetch("https://script.google.com/macros/s/AKfycbyWBst-FTUD_LBi1A3kA1P9vZMrB8JxNLeBJq9OMjoSUTJedMpvmzZ7g6WOLtQk8sBaXg/exec", {
+        mode: 'no-cors'
+      })
+      .then(() => {
+        document.getElementById("counter").innerText = "Grazie per la visita!";
+      })
+      .catch(err => {
+        console.error("Errore fetch:", err);
+        document.getElementById("counter").innerText = "Errore nel conteggio.";
+      });
     };
   </script>
 </head>
