@@ -63,14 +63,15 @@
       }
     }
 
-    // Register page load to Google Sheets via Apps Script
+    // Register and show total visit count
     window.onload = function() {
       fetch("https://script.google.com/macros/s/AKfycbz_OrqfNOYOt3qGGUmNCfU441B5-rWK7bkvcqEou23uCY-eUF0nz8bMgLUsQsiHO-1bDQ/exec")
-        .then(() => {
-          document.getElementById("counter").innerText = "Grazie per la visita!";
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("counter").innerText = `Totale visite: ${data.visite}`;
         })
         .catch(() => {
-          document.getElementById("counter").innerText = "Errore di registrazione.";
+          document.getElementById("counter").innerText = "Errore nel conteggio.";
         });
     };
   </script>
