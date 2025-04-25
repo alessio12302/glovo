@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glovo - Tu ordina, ci andiamo noi</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem 1rem;
+      font-family: Arial, sans-serif;
+      background-color: #FFD600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    img.logo {
+      width: 200px;
+      max-width: 80%;
+    }
+    p.slogan {
+      font-size: 1.2rem;
+      color: #333;
+      margin-top: 1rem;
+    }
+    .download-button {
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      color: white;
+      background-color: #00A082;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      width: 100%;
+      max-width: 300px;
+    }
+  </style>
+  <script>
+    function redirectToStore() {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      if (/android/i.test(userAgent)) {
+        window.location.href = "https://play.google.com/store/apps/details?id=com.glovo";
+      } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        window.location.href = "https://apps.apple.com/app/id951812684";
+      } else {
+        alert("Non siamo riusciti a determinare il tuo dispositivo. Visita lo store manualmente.");
+      }
+    }
+  </script>
+</head>
+<body>
+  <img src="Glovo_Logo.png" alt="Glovo Logo" class="logo">
+  <p class="slogan">Tu ordina, ci andiamo noi.</p>
+  <button class="download-button" onclick="redirectToStore()">Scarica l'app</button>
+</body>
+</html>
