@@ -5,18 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Glovo - Tu ordina, ci andiamo noi</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      padding: 2rem 1rem;
+      padding: 0;
+      height: 100%;
       font-family: Arial, sans-serif;
       background-color: #FFD600;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      justify-content: flex-start;
-      height: 100vh;
       text-align: center;
       box-sizing: border-box;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
     }
     img.logo {
       width: 200px;
@@ -55,8 +60,10 @@
   </script>
 </head>
 <body>
-  <img src="Glovo_Logo.png" alt="Glovo Logo" class="logo">
-  <p class="slogan">Tu ordina, ci andiamo noi.</p>
-  <button class="download-button" onclick="redirectToStore()">Scarica l'app</button>
+  <div class="container">
+    <img src="/mnt/data/Glovo verde.png" alt="Glovo Logo" class="logo">
+    <p class="slogan">Tu ordina, ci andiamo noi.</p>
+    <button class="download-button" onclick="redirectToStore()">Scarica l'app</button>
+  </div>
 </body>
 </html>
