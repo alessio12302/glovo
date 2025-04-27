@@ -66,7 +66,14 @@
     }
 
     function isInServiceArea(lat, lon) {
-      return lat >= 42.590 && lat <= 42.770 && lon >= 13.950 && lon <= 14.090;
+      const centerLat = 42.680;   // centro della zona (modifica se necessario)
+      const centerLon = 14.020;
+      const maxDistanceMeters = 3000; // 3 km
+
+      const distance = calculateDistance(centerLat, centerLon, lat, lon);
+      console.log(`Distanza dal centro: ${distance.toFixed(2)} metri`);
+
+      return distance <= maxDistanceMeters;
     }
 
     function updateStatus(lat, lon) {
@@ -140,7 +147,7 @@
     }
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371000;
+      const R = 6371000; // Raggio della Terra in metri
       const dLat = (lat2 - lat1) * Math.PI / 180;
       const dLon = (lon2 - lon1) * Math.PI / 180;
       const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -197,6 +204,7 @@
     };
   </script>
 </head>
+
 <body>
   <div class="container">
     <img src="Glovo_Logo.png" alt="Glovo Logo" class="logo">
