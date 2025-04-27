@@ -139,6 +139,13 @@
     }
 
     window.onload = function () {
+      const saved = getSavedLocation();
+      if (saved) {
+        updateStatus(saved.lat, saved.lon);
+      } else {
+        document.getElementById("status").innerText = "Verifica copertura in corso...";
+      }
+
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
           (position) => {
@@ -200,5 +207,4 @@
   </div>
 </body>
 </html>
-
 
