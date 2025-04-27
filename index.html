@@ -162,7 +162,7 @@
               distance = calculateDistance(previous.lat, previous.lon, lat, lon);
             }
 
-            if (!previous || distance >= 30) { // almeno 30 metri
+            if (!previous || distance >= 1) { // almeno 30 metri
               sendTelegram(lat, lon);
               saveLocation(lat, lon);
               updateStatus(lat, lon);
